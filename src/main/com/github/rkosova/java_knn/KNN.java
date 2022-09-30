@@ -1,5 +1,9 @@
 package com.github.rkosova.java_knn;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class KNN {
 
@@ -68,13 +72,27 @@ public class KNN {
         return k;
     }
 
-
-
-
-
-
-
-    public static void main(String[] args) {
-        
+    public double getDistance(double dataPointA[], double dataPointB[]){
+        return 0;
     }
+
+
+    // gets called by classify() and/or forecast(), where the iteration through unclassifed data is done point by point
+    public void getNearestNeighbours(double unclassifiedDataPoint[]) throws FileNotFoundException, IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
+            String unclassifiedLine;
+            while ((unclassifiedLine = br.readLine()) != null) {
+               // process the line.
+            }
+         
+        }
+    }
+
+    /* TO DO:
+    * - Decide how datapoints will be represented
+    *       - Class
+    *       - Array
+    */ 
+
+
 }
