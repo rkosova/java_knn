@@ -95,7 +95,8 @@ public class KNN {
             String unclassifiedLine;
             // turn to String array
             while ((unclassifiedLine = br.readLine()) != null) {
-                // get clossest neighbours for every line
+                ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","), this.classColumn);
+                getNearestNeighbours(unclassifiedPoint);
                 // classify every line
             }
         }
@@ -107,11 +108,12 @@ public class KNN {
             String unclassifiedLine;
             // turn to String array
             while ((unclassifiedLine = br.readLine()) != null) {
-                // get clossest neighbours for every line 
+                NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);
+                getNearestNeighbours(unclassifiedPoint);
+                // getNearestNeighbours
             }
         }
     }
-
 
 
 }
