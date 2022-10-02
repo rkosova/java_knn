@@ -1,6 +1,7 @@
 package com.github.rkosova.java_knn;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -72,27 +73,45 @@ public class KNN {
         return k;
     }
 
-    public double getDistance(double dataPointA[], double dataPointB[]){
+    public double getDistance(DataPoint dataPointA, DataPoint dataPointB){
         return 0;
     }
 
 
     // gets called by classify() and/or forecast(), where the iteration through unclassifed data is done point by point
-    public void getNearestNeighbours(double unclassifiedDataPoint[]) throws FileNotFoundException, IOException {
-        try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
-            String unclassifiedLine;
-            while ((unclassifiedLine = br.readLine()) != null) {
+    public void getNearestNeighbours(DataPoint unclassifiedDataPoint) throws FileNotFoundException, IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(this.pathToClassifiedData))) {
+            String classifiedLine;
+            while ((classifiedLine = br.readLine()) != null) {
                // process the line.
             }
          
         }
     }
 
-    /* TO DO:
-    * - Decide how datapoints will be represented
-    *       - Class
-    *       - Array
-    */ 
+
+    public void classify() throws FileNotFoundException, IOException{ 
+        try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
+            String unclassifiedLine;
+            // turn to String array
+            while ((unclassifiedLine = br.readLine()) != null) {
+                // get clossest neighbours for every line
+                // classify every line
+            }
+        }
+    }
+
+
+    public void forecast() throws FileNotFoundException, IOException{
+        try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
+            String unclassifiedLine;
+            // turn to String array
+            while ((unclassifiedLine = br.readLine()) != null) {
+                // get clossest neighbours for every line 
+            }
+        }
+    }
+
 
 
 }
