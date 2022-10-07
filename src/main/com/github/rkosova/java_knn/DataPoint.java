@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 public class DataPoint {
     private ArrayList<Double> X;
+    private double distance = 0d;
 
     public DataPoint(String data[]) {
         for (int i = 0; i < data.length - 1; i++) {
             addX(Double.parseDouble(data[i]));
         }
+       
     }
 
     public ArrayList<Double> getX() {
@@ -18,4 +20,13 @@ public class DataPoint {
     public void addX(double X) {
         this.X.add(X);
     }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
 }

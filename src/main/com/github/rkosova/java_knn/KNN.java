@@ -5,6 +5,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.math.*;
+import java.util.ArrayList;
+
+import javax.xml.crypto.Data;
 
 public class KNN {
 
@@ -73,30 +78,53 @@ public class KNN {
         return k;
     }
 
-    public double getDistance(DataPoint dataPointA, DataPoint dataPointB){
-        return 0;
+    public double getDistance(DataPoint dataPointA, DataPoint dataPointB) {
+        double distance = 0d;
+        for(int i = 0; i < dataPointA.getX().size(); i++) {
+            distance += Math.sqrt(Math.pow(dataPointA.getX().get(i), 2) + Math.pow(dataPointB.getX().get(i), 2));
+        }
+        return distance;
     }
 
 
     // gets called by classify() and/or forecast(), where the iteration through unclassifed data is done point by point
-    public void getNearestNeighbours(DataPoint unclassifiedDataPoint) throws FileNotFoundException, IOException {
+    // void for now, must return k nearest neighbours
+    public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, char type) throws FileNotFoundException, IOException {
+        double distance;
+
+        String classifiedLine = ""; 
+        DataPoint classifiedPoint = null;
+        ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
+
         try (BufferedReader br = new BufferedReader(new FileReader(this.pathToClassifiedData))) {
-            String classifiedLine;
+
             while ((classifiedLine = br.readLine()) != null) {
-               // process the line.
+
+                if (type == 'F') {
+                    classifiedPoint = new NumericalPoint(classifiedLine.split(","), this.classColumn);
+                } else if (type == 'C') {
+                    classifiedPoint = new ClassPoint(classifiedLine.split(","), this.classColumn); 
+                } 
+
+                getDistance(classifiedPoint, unclassifiedDataPoint);
+                distancedPoints.add(classifiedPoint);    
             }
          
         }
+
+        return distancedPoints;
     }
 
 
     public void classify() throws FileNotFoundException, IOException{ 
         try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
+            ArrayList<DataPoint> distancedDataPoints;
             // turn to String array
             while ((unclassifiedLine = br.readLine()) != null) {
                 ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","), this.classColumn);
-                getNearestNeighbours(unclassifiedPoint);
+                distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'C');
+                
                 // classify every line
             }
         }
@@ -106,10 +134,11 @@ public class KNN {
     public void forecast() throws FileNotFoundException, IOException{
         try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
+            ArrayList<DataPoint> distancedDataPoints;
             // turn to String array
             while ((unclassifiedLine = br.readLine()) != null) {
                 NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);
-                getNearestNeighbours(unclassifiedPoint);
+                distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'F');
                 // getNearestNeighbours
             }
         }
