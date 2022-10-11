@@ -1,7 +1,14 @@
 package com.github.rkosova.java_knn;
 
+import java.util.Arrays; 
+
 public class NumericalPoint extends DataPoint {
     private double known;
+
+
+    public NumericalPoint(String data[]) {
+        super(Arrays.copyOfRange(data, 0, data.length - 1));
+    }
 
     public NumericalPoint(String data[], int classColumn) {
         super(data);
