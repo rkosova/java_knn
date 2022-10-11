@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+// ADD DOCU COMMENTS
 
 public class KNN {
 
