@@ -11,7 +11,7 @@ public class ClassPoint extends DataPoint {
     }
 
     public ClassPoint(String data[], int classColumn) { // called when initializing classified ClassPoints
-        super(Arrays.copyOfRange(data, 0, data.length - 1));
+        super(Arrays.copyOfRange(data, 0, data.length - 1)); // passes copy of array without class 
         setClassification(data[classColumn - 1]);
     }
 
