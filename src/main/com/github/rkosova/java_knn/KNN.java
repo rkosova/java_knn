@@ -5,11 +5,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.math.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
-import javax.xml.crypto.Data;
 
 public class KNN {
 
@@ -79,19 +79,19 @@ public class KNN {
     }
 
     public double getDistance(DataPoint dataPointA, DataPoint dataPointB) {
-        double distance = 0d;
+        double distance = 0D;
+
+
         for(int i = 0; i < dataPointA.getX().size(); i++) {
-            distance += Math.sqrt(Math.pow(dataPointA.getX().get(i), 2) + Math.pow(dataPointB.getX().get(i), 2));
+            distance += Math.pow(dataPointA.getX().get(i) - dataPointB.getX().get(i), 2);
         }
-        return distance;
+        return Math.sqrt(distance);
     }
 
 
     // gets called by classify() and/or forecast(), where the iteration through unclassifed data is done point by point
     // void for now, must return k nearest neighbours
     public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, char type) throws FileNotFoundException, IOException {
-        double distance;
-
         String classifiedLine = ""; 
         DataPoint classifiedPoint = null;
         ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
@@ -106,11 +106,20 @@ public class KNN {
                     classifiedPoint = new ClassPoint(classifiedLine.split(","), this.classColumn); 
                 } 
 
-                getDistance(classifiedPoint, unclassifiedDataPoint);
-                distancedPoints.add(classifiedPoint);    
+                classifiedPoint.setDistance(getDistance(classifiedPoint, unclassifiedDataPoint));
+                distancedPoints.add(classifiedPoint);
+                  
             }
          
         }
+
+        
+        Collections.sort(distancedPoints, new Comparator<DataPoint>(){
+            public int compare(DataPoint o1, DataPoint o2)
+            {
+                return Double.compare(o1.getDistance(), o2.getDistance());
+            }
+        });
 
         return distancedPoints;
     }
@@ -122,10 +131,15 @@ public class KNN {
             ArrayList<DataPoint> distancedDataPoints;
             // turn to String array
             while ((unclassifiedLine = br.readLine()) != null) {
-                ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","), this.classColumn);
+                ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
                 distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'C');
                 
-                // classify every line
+                for (int i = 0; i < distancedDataPoints.size(); i++) {
+                    System.out.printf("Point %f, %f is %f away. \n"
+                                    , unclassifiedPoint.getX().get(0)
+                                    , unclassifiedPoint.getX().get(1)
+                                    , distancedDataPoints.get(i).getDistance());
+                }
             }
         }
     }
@@ -139,7 +153,10 @@ public class KNN {
             while ((unclassifiedLine = br.readLine()) != null) {
                 NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);
                 distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'F');
-                // getNearestNeighbours
+
+                for (int i = 0; i < distancedDataPoints.size(); i++) {
+                    System.out.println(distancedDataPoints.get(i).getDistance());
+                }
             }
         }
     }
