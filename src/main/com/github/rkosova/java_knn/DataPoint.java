@@ -3,14 +3,13 @@ package com.github.rkosova.java_knn;
 import java.util.ArrayList;
 
 public class DataPoint {
-    private ArrayList<Double> X;
+    private ArrayList<Double> X = new ArrayList<>();
     private double distance = 0d;
 
     public DataPoint(String data[]) {
-        for (int i = 0; i < data.length - 1; i++) {
+        for (int i = 0; i < data.length; i++) { 
             addX(Double.parseDouble(data[i]));
         }
-       
     }
 
     public ArrayList<Double> getX() {
