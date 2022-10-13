@@ -1,7 +1,6 @@
 package com.github.rkosova.java_knn;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,6 +8,12 @@ import java.math.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
+
 
 // ADD DOCU COMMENTS
 
@@ -96,6 +101,7 @@ public class KNN {
         String classifiedLine = ""; 
         DataPoint classifiedPoint = null;
         ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
+        ArrayList<DataPoint> kNearestNeighbours = new ArrayList<>(); // to be returned
 
         try (BufferedReader br = new BufferedReader(new FileReader(this.pathToClassifiedData))) {
 
@@ -109,12 +115,9 @@ public class KNN {
 
                 classifiedPoint.setDistance(getDistance(classifiedPoint, unclassifiedDataPoint));
                 distancedPoints.add(classifiedPoint);
-                  
             }
-         
         }
 
-        
         Collections.sort(distancedPoints, new Comparator<DataPoint>(){
             public int compare(DataPoint o1, DataPoint o2)
             {
@@ -122,26 +125,45 @@ public class KNN {
             }
         });
 
-        return distancedPoints;
+
+        for (int i = 0; i < k; i++) {
+            kNearestNeighbours.add(distancedPoints.get(i));
+        }
+
+
+        return kNearestNeighbours; 
     }
 
 
     public void classify() throws FileNotFoundException, IOException{ 
         try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
-            ArrayList<DataPoint> distancedDataPoints;
-            // turn to String array
+            ArrayList<DataPoint> kNearestNeighbours;
+            ArrayList<ClassPoint> newlyClassifiedPoints = new ArrayList<>();
+
             while ((unclassifiedLine = br.readLine()) != null) {
                 ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
-                distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'C');
+                kNearestNeighbours = getNearestNeighbours(unclassifiedPoint, 'C');
                 
-                for (int i = 0; i < distancedDataPoints.size(); i++) {
-                    System.out.printf("Point %f, %f is %f away. \n"
-                                    , unclassifiedPoint.getX().get(0)
-                                    , unclassifiedPoint.getX().get(1)
-                                    , distancedDataPoints.get(i).getDistance());
+                if (this.k > 2) { // if only checking 2 or less neighbouts, its always going to be the closest one 
+                    /**
+                     * find most occuring classes in k neares neighbours
+                     */
+                } else {
+                    unclassifiedPoint.setClassification(((ClassPoint) kNearestNeighbours.get(0)).getClassification());
                 }
+
+                newlyClassifiedPoints.add(unclassifiedPoint);
+
             }
+
+            for ( ClassPoint c : newlyClassifiedPoints) {
+                System.out.printf("Point at (%f, %f) has a class of %s.\n", 
+                                         c.getX().get(0), 
+                                         c.getX().get(1), 
+                                         c.getClassification());// 2d only, classify only
+            }
+          
         }
     }
 
@@ -149,7 +171,7 @@ public class KNN {
     public void forecast() throws FileNotFoundException, IOException{
         try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
-            ArrayList<DataPoint> distancedDataPoints;
+            ArrayList<DataPoint> distancedDataPoints; 
             // turn to String array
             while ((unclassifiedLine = br.readLine()) != null) {
                 NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);

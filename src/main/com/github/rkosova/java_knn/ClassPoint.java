@@ -19,7 +19,7 @@ public class ClassPoint extends DataPoint {
         this.classification = classification;
     }
 
-     public String getClassification() {
+    public String getClassification() {
         return classification;
     }
     
