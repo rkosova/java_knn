@@ -4,15 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
-import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
 
 
 // ADD DOCU COMMENTS
@@ -144,11 +139,34 @@ public class KNN {
             while ((unclassifiedLine = br.readLine()) != null) {
                 ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
                 kNearestNeighbours = getNearestNeighbours(unclassifiedPoint, 'C');
+
+                ArrayList<String>  classOccuranceClass = new ArrayList<>();
+                ArrayList<Integer> classOccuranceOccurance = new ArrayList<>();
+                String mostOccuringClass = null;
+                int classOccuranceInt = 0; 
                 
-                if (this.k > 2) { // if only checking 2 or less neighbouts, its always going to be the closest one 
-                    /**
-                     * find most occuring classes in k neares neighbours
-                     */
+                if (this.k > 2) { 
+                    for (DataPoint c : kNearestNeighbours) {
+                        if ((classOccuranceClass.size() != 0 && classOccuranceOccurance.size() != 0) || !classOccuranceClass.contains(((ClassPoint) c).getClassification())) {
+                            classOccuranceClass.add(((ClassPoint) c).getClassification());
+                            classOccuranceOccurance.add(1);
+                        } else if (classOccuranceClass.contains(((ClassPoint) c).getClassification())) {
+                            classOccuranceOccurance.add(classOccuranceOccurance.get(classOccuranceClass.indexOf(((ClassPoint) c).getClassification())) + 1);
+                        }
+                    }
+
+                    for (String cl : classOccuranceClass) {
+                        if (mostOccuringClass == null && classOccuranceInt == 0) {
+                            mostOccuringClass = cl;
+                            classOccuranceInt = classOccuranceOccurance.get(classOccuranceClass.indexOf(cl));
+                        } else if (classOccuranceOccurance.get(classOccuranceClass.indexOf(cl)) > classOccuranceInt) {
+                            mostOccuringClass = cl;
+                            classOccuranceInt = classOccuranceOccurance.get(classOccuranceClass.indexOf(cl));
+                        }
+                    }
+
+                    unclassifiedPoint.setClassification(mostOccuringClass);
+                    
                 } else {
                     unclassifiedPoint.setClassification(((ClassPoint) kNearestNeighbours.get(0)).getClassification());
                 }
@@ -172,7 +190,7 @@ public class KNN {
         try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
             ArrayList<DataPoint> distancedDataPoints; 
-            // turn to String array
+            
             while ((unclassifiedLine = br.readLine()) != null) {
                 NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);
                 distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'F');
