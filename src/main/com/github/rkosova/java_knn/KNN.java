@@ -1,8 +1,10 @@
 package com.github.rkosova.java_knn;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,6 +137,9 @@ public class KNN {
             String unclassifiedLine;
             ArrayList<DataPoint> kNearestNeighbours;
             ArrayList<ClassPoint> newlyClassifiedPoints = new ArrayList<>();
+            File writeFile = new File(this.pathToWrite);
+            FileWriter writer = new FileWriter(writeFile);
+
 
             while ((unclassifiedLine = br.readLine()) != null) {
                 ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
@@ -175,12 +180,11 @@ public class KNN {
 
             }
 
-            for ( ClassPoint c : newlyClassifiedPoints) {
-                System.out.printf("Point at (%f, %f) has a class of %s.\n", 
-                                         c.getX().get(0), 
-                                         c.getX().get(1), 
-                                         c.getClassification());// 2d only, classify only
+            for (ClassPoint c : newlyClassifiedPoints) {
+                writer.write(c.getClassification().trim() + "\n");
             }
+
+            writer.close();
           
         }
     }
@@ -190,7 +194,7 @@ public class KNN {
         try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
             ArrayList<DataPoint> distancedDataPoints; 
-            
+
             while ((unclassifiedLine = br.readLine()) != null) {
                 NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);
                 distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'F');
