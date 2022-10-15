@@ -7,11 +7,11 @@ public class NumericalPoint extends DataPoint {
 
 
     public NumericalPoint(String data[]) {
-        super(Arrays.copyOfRange(data, 0, data.length - 1));
+        super(data);
     }
 
     public NumericalPoint(String data[], int classColumn) {
-        super(data);
+        super(Arrays.copyOfRange(data, 0, data.length - 1));
         setKnown(Double.parseDouble(data[classColumn - 1]));
     }
 

@@ -12,6 +12,7 @@ import java.util.Comparator;
 
 
 
+
 // ADD DOCU COMMENTS
 
 public class KNN {
@@ -40,7 +41,11 @@ public class KNN {
         this.k = k;
     }
 
-    
+    enum Model {
+        FORECAST,
+        CLASSIFY
+    }
+
     public void setPathToClassifiedData(String pathToClassifiedData) {
         this.pathToClassifiedData = pathToClassifiedData;
     }
@@ -94,7 +99,7 @@ public class KNN {
 
     // gets called by classify() and/or forecast(), where the iteration through unclassifed data is done point by point
     // void for now, must return k nearest neighbours
-    public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, char type) throws FileNotFoundException, IOException {
+    public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, Model type) throws FileNotFoundException, IOException {
         String classifiedLine = ""; 
         DataPoint classifiedPoint = null;
         ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
@@ -104,9 +109,9 @@ public class KNN {
 
             while ((classifiedLine = br.readLine()) != null) {
 
-                if (type == 'F') {
+                if (type == Model.FORECAST) {
                     classifiedPoint = new NumericalPoint(classifiedLine.split(","), this.classColumn);
-                } else if (type == 'C') {
+                } else if (type == Model.CLASSIFY) {
                     classifiedPoint = new ClassPoint(classifiedLine.split(","), this.classColumn); 
                 } 
 
@@ -143,7 +148,7 @@ public class KNN {
 
             while ((unclassifiedLine = br.readLine()) != null) {
                 ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
-                kNearestNeighbours = getNearestNeighbours(unclassifiedPoint, 'C');
+                kNearestNeighbours = getNearestNeighbours(unclassifiedPoint, Model.CLASSIFY);
 
                 ArrayList<String>  classOccuranceClass = new ArrayList<>();
                 ArrayList<Integer> classOccuranceOccurance = new ArrayList<>();
@@ -194,17 +199,34 @@ public class KNN {
         try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
             ArrayList<DataPoint> distancedDataPoints; 
+            ArrayList<NumericalPoint> forecastedPoint = new ArrayList<>();
+            File writeFile = new File(this.pathToWrite);
+            FileWriter writer = new FileWriter(writeFile);
 
             while ((unclassifiedLine = br.readLine()) != null) {
-                NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","), this.classColumn);
-                distancedDataPoints = getNearestNeighbours(unclassifiedPoint, 'F');
+                NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","));
+                distancedDataPoints = getNearestNeighbours(unclassifiedPoint, Model.FORECAST);
 
-                for (int i = 0; i < distancedDataPoints.size(); i++) {
-                    System.out.println(distancedDataPoints.get(i).getDistance());
+                double sum = 0d;
+
+                for (DataPoint n : distancedDataPoints) {
+                    sum += ((NumericalPoint) n).getKnown();
                 }
+
+                unclassifiedPoint.setKnown(sum / distancedDataPoints.size());
+
+                forecastedPoint.add(unclassifiedPoint);
+                // optimize speed by writing from within loop
             }
+
+            for (NumericalPoint fp : forecastedPoint) {
+                writer.write(Double.toString(fp.getKnown()) + "\n");
+            }
+
+            writer.close();
+            
         }
     }
 
-
+    // error and accuracy stat methods
 }
