@@ -103,20 +103,20 @@ public class KNN {
         ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
         ArrayList<DataPoint> kNearestNeighbours = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(this.pathToClassifiedData))) {
+        BufferedReader br = new BufferedReader(new FileReader(this.pathToClassifiedData));
 
-            while ((classifiedLine = br.readLine()) != null) {
+        while ((classifiedLine = br.readLine()) != null) {
 
-                if (type == Model.FORECAST) {
-                    classifiedPoint = new NumericalPoint(classifiedLine.split(","), this.classColumn);
-                } else if (type == Model.CLASSIFY) {
-                    classifiedPoint = new ClassPoint(classifiedLine.split(","), this.classColumn); 
-                } 
+            if (type == Model.FORECAST) {
+                classifiedPoint = new NumericalPoint(classifiedLine.split(","), this.classColumn);
+            } else if (type == Model.CLASSIFY) {
+                classifiedPoint = new ClassPoint(classifiedLine.split(","), this.classColumn); 
+            } 
 
-                classifiedPoint.setDistance(getDistance(classifiedPoint, unclassifiedDataPoint));
-                distancedPoints.add(classifiedPoint);
-            }
+            classifiedPoint.setDistance(getDistance(classifiedPoint, unclassifiedDataPoint));
+            distancedPoints.add(classifiedPoint);
         }
+        br.close();
 
         Collections.sort(distancedPoints, new Comparator<DataPoint>(){
             public int compare(DataPoint o1, DataPoint o2)
@@ -125,94 +125,148 @@ public class KNN {
             }
         });
 
-
         for (int i = 0; i < k; i++) {
             kNearestNeighbours.add(distancedPoints.get(i));
         }
-
 
         return kNearestNeighbours; 
     }
 
 
-    public void classify() throws FileNotFoundException, IOException{ 
-        try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
-            String unclassifiedLine;
-            ArrayList<DataPoint> kNearestNeighbours;
-            File writeFile = new File(this.pathToWrite);
-            FileWriter writer = new FileWriter(writeFile);
+    public void classify() throws IOException{ 
+        BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData));
+        String unclassifiedLine;
+        ArrayList<DataPoint> kNearestNeighbours;
+        File writeFile = new File(this.pathToWrite);
+        FileWriter writer = new FileWriter(writeFile);
 
+        while ((unclassifiedLine = br.readLine()) != null) {
+            ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
+            kNearestNeighbours = getNearestNeighbours(unclassifiedPoint, Model.CLASSIFY);
 
-            while ((unclassifiedLine = br.readLine()) != null) {
-                ClassPoint unclassifiedPoint = new ClassPoint(unclassifiedLine.split(","));
-                kNearestNeighbours = getNearestNeighbours(unclassifiedPoint, Model.CLASSIFY);
-
-                ArrayList<String>  classOccuranceClass = new ArrayList<>();
-                ArrayList<Integer> classOccuranceOccurance = new ArrayList<>();
-                String mostOccuringClass = null;
-                int classOccuranceInt = 0; 
-                
-                if (this.k > 2) { 
-                    for (DataPoint c : kNearestNeighbours) {
-                        if ((classOccuranceClass.size() != 0 && classOccuranceOccurance.size() != 0) || !classOccuranceClass.contains(((ClassPoint) c).getClassification())) {
-                            classOccuranceClass.add(((ClassPoint) c).getClassification());
-                            classOccuranceOccurance.add(1);
-                        } else if (classOccuranceClass.contains(((ClassPoint) c).getClassification())) {
-                            classOccuranceOccurance.add(classOccuranceOccurance.get(classOccuranceClass.indexOf(((ClassPoint) c).getClassification())) + 1);
-                        }
-                    }
-
-                    for (String cl : classOccuranceClass) {
-                        if (mostOccuringClass == null && classOccuranceInt == 0) {
-                            mostOccuringClass = cl;
-                            classOccuranceInt = classOccuranceOccurance.get(classOccuranceClass.indexOf(cl));
-                        } else if (classOccuranceOccurance.get(classOccuranceClass.indexOf(cl)) > classOccuranceInt) {
-                            mostOccuringClass = cl;
-                            classOccuranceInt = classOccuranceOccurance.get(classOccuranceClass.indexOf(cl));
-                        }
-                    }
-
-                    unclassifiedPoint.setClassification(mostOccuringClass);
-                    
-                } else {
-                    unclassifiedPoint.setClassification(((ClassPoint) kNearestNeighbours.get(0)).getClassification());
-                }
-
-                writer.write(unclassifiedPoint.getClassification().trim() + "\n");
-
-            }
-            writer.close();
-          
-        }
-    }
-
-
-    public void forecast() throws FileNotFoundException, IOException{
-        try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
-            String unclassifiedLine;
-            ArrayList<DataPoint> distancedDataPoints; 
-            File writeFile = new File(this.pathToWrite);
-            FileWriter writer = new FileWriter(writeFile);
-
-            while ((unclassifiedLine = br.readLine()) != null) {
-                NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","));
-                distancedDataPoints = getNearestNeighbours(unclassifiedPoint, Model.FORECAST);
-
-                double sum = 0d;
-
-                for (DataPoint n : distancedDataPoints) {
-                    sum += ((NumericalPoint) n).getKnown();
-                }
-
-                unclassifiedPoint.setKnown(sum / distancedDataPoints.size());
-
-                writer.write(Double.toString(unclassifiedPoint.getKnown()) + "\n");
-            }
-
-            writer.close();
+            ArrayList<String>  classOccuranceClass = new ArrayList<>();
+            ArrayList<Integer> classOccuranceOccurance = new ArrayList<>();
+            String mostOccuringClass = null;
+            int classOccuranceInt = 0; 
             
+            if (this.k > 2) { 
+                for (DataPoint c : kNearestNeighbours) {
+                    if ((classOccuranceClass.size() != 0 && classOccuranceOccurance.size() != 0) || !classOccuranceClass.contains(((ClassPoint) c).getClassification())) {
+                        classOccuranceClass.add(((ClassPoint) c).getClassification());
+                        classOccuranceOccurance.add(1);
+                    } else if (classOccuranceClass.contains(((ClassPoint) c).getClassification())) {
+                        classOccuranceOccurance.add(classOccuranceOccurance.get(classOccuranceClass.indexOf(((ClassPoint) c).getClassification())) + 1);
+                    }
+                }
+
+                for (String cl : classOccuranceClass) {
+                    if (mostOccuringClass == null && classOccuranceInt == 0) {
+                        mostOccuringClass = cl;
+                        classOccuranceInt = classOccuranceOccurance.get(classOccuranceClass.indexOf(cl));
+                    } else if (classOccuranceOccurance.get(classOccuranceClass.indexOf(cl)) > classOccuranceInt) {
+                        mostOccuringClass = cl;
+                        classOccuranceInt = classOccuranceOccurance.get(classOccuranceClass.indexOf(cl));
+                    }
+                }
+
+                unclassifiedPoint.setClassification(mostOccuringClass);
+                
+            } else {
+                unclassifiedPoint.setClassification(((ClassPoint) kNearestNeighbours.get(0)).getClassification());
+            }
+
+            writer.write(unclassifiedPoint.getClassification().trim() + "\n");
+
         }
+        writer.close();
+        br.close();
+    }
+    
+
+    public void forecast() throws IOException{
+        BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData));
+        String unclassifiedLine;
+        ArrayList<DataPoint> distancedDataPoints; 
+        File writeFile = new File(this.pathToWrite);
+        FileWriter writer = new FileWriter(writeFile);
+
+        while ((unclassifiedLine = br.readLine()) != null) {
+            NumericalPoint unclassifiedPoint = new NumericalPoint(unclassifiedLine.split(","));
+            distancedDataPoints = getNearestNeighbours(unclassifiedPoint, Model.FORECAST);
+
+            double sum = 0d;
+
+            for (DataPoint n : distancedDataPoints) {
+                sum += ((NumericalPoint) n).getKnown();
+            }
+
+            unclassifiedPoint.setKnown(sum / distancedDataPoints.size());
+            writer.write(Double.toString(unclassifiedPoint.getKnown()) + "\n");
+        }
+        writer.close();
+        br.close();
     }
 
-    // error and accuracy stat methods
-}
+
+    public double getRMSE(String pathToObserved, String pathToPredicted) throws IOException{
+        double rmse = 0;
+        double distanceSum = 0;
+        int lineCount = 0;
+
+        BufferedReader observedReader = new BufferedReader(new FileReader(pathToObserved));
+        BufferedReader predictedReader = new BufferedReader(new FileReader(pathToPredicted));
+    
+        while (true) {
+            String lineObserved = observedReader.readLine();
+            String linePredicted = predictedReader.readLine();
+
+            if (lineObserved == null || linePredicted == null) {
+                break;
+            }
+
+            double observation = Double.parseDouble(lineObserved);
+            double prediction = Double.parseDouble(linePredicted);
+
+            distanceSum += Math.pow(observation - prediction, 2);
+            lineCount++;
+        }
+
+        observedReader.close();
+        predictedReader.close();
+
+        rmse = Math.sqrt(distanceSum/lineCount);
+
+        return rmse;
+    }
+
+
+    public double getAccuracy(String pathToObserved, String pathToPredicted) throws IOException {
+        double accuracy = 0;
+        int lineCount = 0;
+
+        BufferedReader observedReader = new BufferedReader(new FileReader(pathToObserved));
+        BufferedReader predictedReader = new BufferedReader(new FileReader(pathToPredicted));
+
+        while (true) {
+            String classObserved = observedReader.readLine();
+            String classPredicted = predictedReader.readLine();
+
+            if (classObserved == null || classPredicted == null) {
+                break;
+            }
+
+            if (classObserved.equals(classPredicted)) {
+                accuracy++;
+            }
+            
+            lineCount++;
+        }
+
+        observedReader.close();
+        predictedReader.close();
+
+        accuracy /= lineCount;
+
+        return accuracy;
+    }
+} // maybe integrate accuracy data into classify() or forecast()
