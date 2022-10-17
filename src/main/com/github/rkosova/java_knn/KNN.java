@@ -208,7 +208,7 @@ public class KNN {
     }
 
 
-    public double getRMSE(String pathToObserved, String pathToPredicted) throws IOException{
+    public static double getRMSE(String pathToObserved, String pathToPredicted) throws IOException{
         double rmse = 0;
         double distanceSum = 0;
         int lineCount = 0;
@@ -240,7 +240,7 @@ public class KNN {
     }
 
 
-    public double getAccuracy(String pathToObserved, String pathToPredicted) throws IOException {
+    public static double getAccuracy(String pathToObserved, String pathToPredicted) throws IOException {
         double accuracy = 0;
         int lineCount = 0;
 
