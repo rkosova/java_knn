@@ -97,13 +97,11 @@ public class KNN {
     }
 
 
-    // gets called by classify() and/or forecast(), where the iteration through unclassifed data is done point by point
-    // void for now, must return k nearest neighbours
     public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, Model type) throws FileNotFoundException, IOException {
         String classifiedLine = ""; 
         DataPoint classifiedPoint = null;
         ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
-        ArrayList<DataPoint> kNearestNeighbours = new ArrayList<>(); // to be returned
+        ArrayList<DataPoint> kNearestNeighbours = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(this.pathToClassifiedData))) {
 
@@ -141,7 +139,6 @@ public class KNN {
         try (BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
             ArrayList<DataPoint> kNearestNeighbours;
-            ArrayList<ClassPoint> newlyClassifiedPoints = new ArrayList<>();
             File writeFile = new File(this.pathToWrite);
             FileWriter writer = new FileWriter(writeFile);
 
@@ -181,14 +178,9 @@ public class KNN {
                     unclassifiedPoint.setClassification(((ClassPoint) kNearestNeighbours.get(0)).getClassification());
                 }
 
-                newlyClassifiedPoints.add(unclassifiedPoint);
+                writer.write(unclassifiedPoint.getClassification().trim() + "\n");
 
             }
-
-            for (ClassPoint c : newlyClassifiedPoints) {
-                writer.write(c.getClassification().trim() + "\n");
-            }
-
             writer.close();
           
         }
@@ -199,7 +191,6 @@ public class KNN {
         try(BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData))) {
             String unclassifiedLine;
             ArrayList<DataPoint> distancedDataPoints; 
-            ArrayList<NumericalPoint> forecastedPoint = new ArrayList<>();
             File writeFile = new File(this.pathToWrite);
             FileWriter writer = new FileWriter(writeFile);
 
@@ -215,12 +206,7 @@ public class KNN {
 
                 unclassifiedPoint.setKnown(sum / distancedDataPoints.size());
 
-                forecastedPoint.add(unclassifiedPoint);
-                // optimize speed by writing from within loop
-            }
-
-            for (NumericalPoint fp : forecastedPoint) {
-                writer.write(Double.toString(fp.getKnown()) + "\n");
+                writer.write(Double.toString(unclassifiedPoint.getKnown()) + "\n");
             }
 
             writer.close();
