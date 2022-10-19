@@ -2,6 +2,11 @@ package com.github.rkosova.java_knn;
 
 import java.util.ArrayList;
 
+
+/** Represents an instance of a data point.
+ * 
+ * @author Ron Kosova
+ */
 public class DataPoint {
     private ArrayList<Double> X = new ArrayList<>();
     private double distance = 0d;

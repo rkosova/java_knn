@@ -13,8 +13,10 @@ import java.util.Comparator;
 
 
 
-// ADD DOCU COMMENTS
-
+/** Represents an instance of the kNN model.
+ * 
+ * @author Ron Kosova
+ */
 public class KNN {
 
     private String pathToClassifiedData;
