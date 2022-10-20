@@ -2,7 +2,6 @@ package com.github.rkosova.java_knn;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,10 +30,25 @@ public class KNN {
         this(null, null, null, 0);
     }
 
+    /**
+     * 
+     * @param pathToClassifiedData Path to the training data
+     * @param pathToUnclassifiedData Path to the unclassified data
+     * @param pathToWrite Path to where the output is written
+     * @param classColumn Number of the class column for the training data
+     */
     public KNN(String pathToClassifiedData, String pathToUnclassifiedData, String pathToWrite, int classColumn) {
         this(pathToClassifiedData, pathToUnclassifiedData, pathToWrite, classColumn, 3);
     }
 
+    /**
+     * 
+     * @param pathToClassifiedData Path to the training data
+     * @param pathToUnclassifiedData Path to the unclassified data
+     * @param pathToWrite Path to where the output is written
+     * @param classColumn Number of the class column for the training data
+     * @param k k value
+     */
     public KNN(String pathToClassifiedData, String pathToUnclassifiedData, String pathToWrite, int classColumn, int k) {
         this.pathToClassifiedData = pathToClassifiedData;
         this.pathToUnclassifiedData = pathToUnclassifiedData;
@@ -87,10 +101,15 @@ public class KNN {
     public int getK() {
         return k;
     }
-
+    
+    /** Gets the distance between two points
+     * 
+     * @param dataPointA 
+     * @param dataPointB
+     * @return Distance between @param dataPointA and @param dataPointB
+     */
     public double getDistance(DataPoint dataPointA, DataPoint dataPointB) {
         double distance = 0D;
-
 
         for(int i = 0; i < dataPointA.getX().size(); i++) {
             distance += Math.pow(dataPointA.getX().get(i) - dataPointB.getX().get(i), 2);
@@ -98,8 +117,14 @@ public class KNN {
         return Math.sqrt(distance);
     }
 
-
-    public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, Model type) throws FileNotFoundException, IOException {
+    /** Returns a k-sized sorted ArrayList of DataPoint objects from closest to furthest.
+     * 
+     * @param unclassifiedDataPoint DataPoint object from unclassified dataset for which the neighbours must be found
+     * @param type  Type of model to be used (FORECAST or CLASSIFY)
+     * @return  Sorted, k-sized ArrayList of DataPoints that represents the k Nearest Neighbours of the @param unclassifiedDataPoint parameter
+     * @throws IOException
+     */
+    public ArrayList<DataPoint> getNearestNeighbours(DataPoint unclassifiedDataPoint, Model type) throws IOException {
         String classifiedLine = ""; 
         DataPoint classifiedPoint = null;
         ArrayList<DataPoint> distancedPoints = new ArrayList<>(); 
@@ -135,6 +160,10 @@ public class KNN {
     }
 
 
+    /** Classifies discrete class unclassified data points from k nearest neighbours and writes to pathToFile.
+     * 
+     * @throws IOException
+     */
     public void classify() throws IOException{ 
         BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData));
         String unclassifiedLine;
@@ -184,7 +213,10 @@ public class KNN {
         br.close();
     }
     
-
+    /** Forecasts numerical data points from k nearest neighbours and writes to pathToWrite.
+     * 
+     * @throws IOException
+     */
     public void forecast() throws IOException{
         BufferedReader br = new BufferedReader(new FileReader(this.pathToUnclassifiedData));
         String unclassifiedLine;
@@ -209,7 +241,13 @@ public class KNN {
         br.close();
     }
 
-
+    /** Gets RMSE of two files containing the testing data observation column and the model output
+     * 
+     * @param pathToObserved  Path to file containting observed data y column
+     * @param pathToPredicted  Path to file containting model output
+     * @return
+     * @throws IOException
+     */
     public static double getRMSE(String pathToObserved, String pathToPredicted) throws IOException{
         double rmse = 0;
         double distanceSum = 0;
@@ -241,7 +279,13 @@ public class KNN {
         return rmse;
     }
 
-
+    /**Gets the accuracy between two files, one containing the training data class column and one the model output
+     * 
+     * @param pathToObserved  Path to trainging data class column
+     * @param pathToPredicted  Path to model output
+     * @return
+     * @throws IOException
+     */
     public static double getAccuracy(String pathToObserved, String pathToPredicted) throws IOException {
         double accuracy = 0;
         int lineCount = 0;

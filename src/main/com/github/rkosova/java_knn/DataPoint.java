@@ -11,6 +11,10 @@ public class DataPoint {
     private ArrayList<Double> X = new ArrayList<>();
     private double distance = 0d;
 
+    /**
+     * 
+     * @param data Array of strings created from splitting one row of training data, class column omitted
+     */
     public DataPoint(String data[]) {
         for (int i = 0; i < data.length; i++) { 
             addX(Double.parseDouble(data[i]));
