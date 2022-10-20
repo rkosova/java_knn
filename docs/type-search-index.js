@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.github.rkosova.java_knn","l":"ClassPoint"},{"p":"com.github.rkosova.java_knn","l":"DataPoint"},{"p":"com.github.rkosova.java_knn","l":"KNN"},{"p":"com.github.rkosova.java_knn","l":"NumericalPoint"}];updateSearchResults();
